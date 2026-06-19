@@ -13,12 +13,12 @@ struct task
 void adicionarTarefa()
 {
 
-    FILE *arq = fopen("tarefas.txt", "r");
-    if (arq == NULL)
+    FILE *abrirArquivo = fopen("tarefas.txt", "r");
+    if (abrirArquivo == NULL)
     {
-        FILE *arq = fopen("tarefas.txt", "w");
+        FILE *abrirArquivo = fopen("tarefas.txt", "w");
     };
-    fclose(arq);
+    fclose(abrirArquivo);
 
     struct task novaTarefa;
 
@@ -56,9 +56,20 @@ void adicionarTarefa()
     FILE *arquivo = fopen("tarefas.txt", "a");
     fprintf(arquivo, "%s, %d, %d\n", novaTarefa.descricao, novaTarefa.prioridade, novaTarefa.situacao);
     fclose(arquivo);
+    printf("Tarefa adicionada com sucesso!\n");
 }
 
-void main()
+void listarTarefas(){
+    FILE *abrirArquivo = fopen("tarefas.txt", "r");
+    if(abrirArquivo == NULL){
+        printf("Erro ao abrir o arquivo de tarefas.\n");
+        return;
+    }
+    printf("\nLista de tarefas:\n");
+    
+}
+
+int main()
 {
     printf("+--------------------------------------+\n");
     printf("|              TODO LIST               |\n");
@@ -70,15 +81,15 @@ void main()
     while (true)
     {
 
-        printf("\nEscolha uma opção:\n");
+        printf("Escolha uma opção:\n");
         printf("1. Adicionar tarefa\n");
         printf("2. Listar tarefas\n");
         printf("3. Listar tarefas pendentes\n");
         printf("4. Listar tarefas concluídas\n");
         printf("0. Sair\n");
 
-        scanf("digite sua opção: %d", &opcao);
-
+        printf("Digite sua opção: ");
+        scanf("%d", &opcao);
         getchar();
 
         switch (opcao)
@@ -90,6 +101,7 @@ void main()
 
         case 2:
             printf("Listar tarefas selecionada.\n");
+            listarTarefas();
             break;
 
         case 3:
@@ -109,4 +121,6 @@ void main()
             break;
         }
     }
+
+    return 0;
 }
