@@ -12,7 +12,6 @@ struct task
 
 void adicionarTarefa()
 {
-
     FILE *abrirArquivo = fopen("tarefas.txt", "r");
     if (abrirArquivo == NULL)
     {
@@ -59,6 +58,10 @@ void adicionarTarefa()
     printf("Tarefa adicionada com sucesso!\n");
 }
 
+void editarTarefas()
+{
+}
+
 void listarTarefas()
 {
     FILE *abrirArquivo = fopen("tarefas.txt", "r");
@@ -78,55 +81,127 @@ void listarTarefas()
         printf("Descrição: %s | Prioridade: %d | Situação: %s\n", descricao, prioridade, situacao ? "Concluída" : "Pendente");
     }
     fclose(abrirArquivo);
+
+    printf("Aperte enter para fechar: ");
+    scanf("%*c");
+}
+
+void listarTarefasPendentes()
+{
+    FILE *abrirArquivo = fopen("tarefas.txt", "r");
+    if (abrirArquivo == NULL)
+    {
+        printf("Erro ao abrir o arquivo de tarefas.\n");
+        return;
+    }
+
+    char descricao[256];
+    int prioridade;
+    int situacao;
+
+    printf("\nLista de tarefas pendentes:\n");
+    while (fscanf(abrirArquivo, "%255[^,], %d, %d\n", descricao, &prioridade, &situacao) != EOF)
+    {
+        if (situacao == 0)
+        {
+            printf("Descrição: %s | Prioridade: %d | Situação: %s\n", descricao, prioridade, situacao ? "Concluída" : "Pendente");
+        }
+    }
+    fclose(abrirArquivo);
+
+    printf("Aperte enter para fechar: ");
+    scanf("%*c");
+}
+
+void listarTarefasConcluidas()
+{
+    FILE *abrirArquivo = fopen("tarefas.txt", "r");
+    if (abrirArquivo == NULL)
+    {
+        printf("Erro ao abrir o arquivo de tarefas.\n");
+        return;
+    }
+
+    char descricao[256];
+    int prioridade;
+    int situacao;
+
+    printf("\nLista de tarefas concluídas:\n");
+    while (fscanf(abrirArquivo, "%255[^,], %d, %d\n", descricao, &prioridade, &situacao) != EOF)
+    {
+        if (situacao == 1)
+        {
+            printf("Descrição: %s | Prioridade: %d | Situação: %s\n", descricao, prioridade, situacao ? "Concluída" : "Pendente");
+        }
+    }
+    fclose(abrirArquivo);
+
+    printf("Aperte enter para fechar: ");
+    scanf("%*c");
 }
 
 int main()
 {
-    printf("+--------------------------------------+\n");
-    printf("|              TODO LIST               |\n");
-    printf("|        Organize suas tarefas         |\n");
-    printf("+--------------------------------------+\n");
 
     int opcao;
 
     while (true)
     {
+        system("clear");
+        printf("+--------------------------------------+\n");
+        printf("|              TODO LIST               |\n");
+        printf("|        Organize suas tarefas         |\n");
+        printf("+--------------------------------------+\n");
 
         printf("Escolha uma opção:\n");
         printf("1. Adicionar tarefa\n");
-        printf("2. Listar tarefas\n");
-        printf("3. Listar tarefas pendentes\n");
-        printf("4. Listar tarefas concluídas\n");
+        printf("2. Editar tarefas\n");
+        printf("3. Listar tarefas\n");
+        printf("4. Listar tarefas pendentes\n");
+        printf("5. Listar tarefas concluídas\n");
         printf("0. Sair\n");
 
-        do{
+        do
+        {
             printf("Digite sua opção: ");
             scanf("%d", &opcao);
             getchar();
-            if (opcao < 0 || opcao > 4)
+            if (opcao < 0 || opcao > 5)
             {
-                printf("Opção inválida. Por favor, digite um número entre 0 e 4.\n");
+                printf("Opção inválida. Por favor, digite um número entre 0 e 5.\n");
             }
-        } while (opcao < 0 || opcao > 4);
-        
+        } while (opcao < 0 || opcao > 5);
+
         switch (opcao)
         {
         case 1:
-            printf("Adicionar tarefa selecionada.\n");
+            system("clear");
+            printf("\nAdicionar tarefa selecionado.");
             adicionarTarefa();
             break;
 
         case 2:
-            printf("Listar tarefas selecionada.\n");
-            listarTarefas();
+            system("clear");
+            printf("\nEditar tarefa selecionado.");
+            editarTarefas();
             break;
 
         case 3:
-            printf("Listar tarefas pendentes selecionada.\n");
+            system("clear");
+            printf("\nListar tarefas selecionado.");
+            listarTarefas();
             break;
 
         case 4:
-            printf("Listar tarefas concluídas selecionada.\n");
+            system("clear");
+            printf("\nListar tarefas pendentes selecionado.");
+            listarTarefasPendentes();
+            break;
+
+        case 5:
+            system("clear");
+            printf("\nListar tarefas concluídas selecionado.");
+            listarTarefasConcluidas();
             break;
 
         case 0:
