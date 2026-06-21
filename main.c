@@ -7,7 +7,7 @@ struct task
 {
     char descricao[256];
     int prioridade;
-    bool situacao;
+    int situacao;
 };
 
 void adicionarTarefa()
@@ -51,7 +51,7 @@ void adicionarTarefa()
 
     } while (novaTarefa.prioridade < 1 || novaTarefa.prioridade > 5);
 
-    novaTarefa.situacao = false;
+    novaTarefa.situacao = 0;
 
     FILE *arquivo = fopen("tarefas.txt", "a");
     fprintf(arquivo, "%s, %d, %d\n", novaTarefa.descricao, novaTarefa.prioridade, novaTarefa.situacao);
@@ -59,14 +59,25 @@ void adicionarTarefa()
     printf("Tarefa adicionada com sucesso!\n");
 }
 
-void listarTarefas(){
+void listarTarefas()
+{
     FILE *abrirArquivo = fopen("tarefas.txt", "r");
-    if(abrirArquivo == NULL){
+    if (abrirArquivo == NULL)
+    {
         printf("Erro ao abrir o arquivo de tarefas.\n");
         return;
     }
+
+    char descricao[256];
+    int prioridade;
+    int situacao;
+
     printf("\nLista de tarefas:\n");
-    
+    while (fscanf(abrirArquivo, "%255[^,], %d, %d\n", descricao, &prioridade, &situacao) != EOF)
+    {
+        printf("Descrição: %s | Prioridade: %d | Situação: %s\n", descricao, prioridade, situacao ? "Concluída" : "Pendente");
+    }
+    fclose(abrirArquivo);
 }
 
 int main()
@@ -88,10 +99,16 @@ int main()
         printf("4. Listar tarefas concluídas\n");
         printf("0. Sair\n");
 
-        printf("Digite sua opção: ");
-        scanf("%d", &opcao);
-        getchar();
-
+        do{
+            printf("Digite sua opção: ");
+            scanf("%d", &opcao);
+            getchar();
+            if (opcao < 0 || opcao > 4)
+            {
+                printf("Opção inválida. Por favor, digite um número entre 0 e 4.\n");
+            }
+        } while (opcao < 0 || opcao > 4);
+        
         switch (opcao)
         {
         case 1:
@@ -115,10 +132,6 @@ int main()
         case 0:
             printf("Saindo do programa. Até logo!\n");
             exit(0);
-
-        default:
-            printf("Opção inválida. Por favor, tente novamente.\n");
-            break;
         }
     }
 
