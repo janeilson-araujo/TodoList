@@ -169,12 +169,7 @@ void apagarTarefa()
 
     while (fscanf(abrirArquivo, "%255[^,], %d, %d\n", tarefaEditar.descricao, &tarefaEditar.prioridade, &tarefaEditar.situacao) != EOF)
     {
-        if (id == idEdicao)
-        {
-            continue;
-        }
-
-        else
+        if (id != idEdicao)
         {
             fprintf(arquivoTemp, "%s, %d, %d\n", tarefaEditar.descricao, tarefaEditar.prioridade, tarefaEditar.situacao);
         }
