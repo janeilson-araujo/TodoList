@@ -12,12 +12,7 @@ struct task
 
 void adicionarTarefa()
 {
-    FILE *abrirArquivo = fopen("tarefas.txt", "r");
-    if (abrirArquivo == NULL)
-    {
-        FILE *abrirArquivo = fopen("tarefas.txt", "w");
-    };
-    fclose(abrirArquivo);
+    FILE *arquivo = fopen("tarefas.txt", "a");
 
     struct task novaTarefa;
 
@@ -51,7 +46,6 @@ void adicionarTarefa()
 
     novaTarefa.situacao = 0;
 
-    FILE *arquivo = fopen("tarefas.txt", "a");
     fprintf(arquivo, "%s, %d, %d\n", novaTarefa.descricao, novaTarefa.prioridade, novaTarefa.situacao);
     fclose(arquivo);
     printf("Tarefa adicionada com sucesso!\n");
@@ -84,7 +78,7 @@ void marcarTarefaConcluida()
 
     do
     {
-        printf("Digite o ID da tarefa que deseja editar: ");
+        printf("Digite o ID da tarefa que deseja marcar como concluida: ");
         scanf("%d", &idEdicao);
         getchar();
         if (idEdicao < 1 || idEdicao >= id)
@@ -120,6 +114,64 @@ void marcarTarefaConcluida()
             } while (situacao_temp[0] != 'y' && situacao_temp[0] != 'Y' && situacao_temp[0] != 'n' && situacao_temp[0] != 'N');
 
             fprintf(arquivoTemp, "%s, %d, %d\n", tarefaEditar.descricao, tarefaEditar.prioridade, tarefaEditar.situacao);
+        }
+
+        else
+        {
+            fprintf(arquivoTemp, "%s, %d, %d\n", tarefaEditar.descricao, tarefaEditar.prioridade, tarefaEditar.situacao);
+        }
+        id++;
+    }
+
+    fclose(abrirArquivo);
+    fclose(arquivoTemp);
+    remove("tarefas.txt");
+    rename("tarefas_temp.txt", "tarefas.txt");
+}
+
+void apagarTarefa()
+{
+    FILE *abrirArquivo = fopen("tarefas.txt", "r");
+    if (abrirArquivo == NULL)
+    {
+        printf("Erro ao abrir o arquivo de tarefas.\n");
+        return;
+    }
+    FILE *arquivoTemp = fopen("tarefas_temp.txt", "w");
+
+    int id = 1;
+    char situacao_temp[2];
+
+    struct task tarefaEditar;
+
+    printf("\ntarefas:\n");
+    while (fscanf(abrirArquivo, "%255[^,], %d, %d\n", tarefaEditar.descricao, &tarefaEditar.prioridade, &tarefaEditar.situacao) != EOF)
+    {
+        printf("ID: %d | Descrição: %s | Prioridade: %d | Situação: %s\n", id, tarefaEditar.descricao, tarefaEditar.prioridade, tarefaEditar.situacao ? "Concluída" : "Pendente");
+        id++;
+    }
+
+    rewind(abrirArquivo);
+    int idEdicao;
+
+    do
+    {
+        printf("Digite o ID da tarefa que deseja apagar: ");
+        scanf("%d", &idEdicao);
+        getchar();
+        if (idEdicao < 1 || idEdicao >= id)
+        {
+            printf("ID inválido. Por favor, digite um ID válido.\n");
+        }
+    } while (idEdicao < 1 || idEdicao >= id);
+
+    id = 1;
+
+    while (fscanf(abrirArquivo, "%255[^,], %d, %d\n", tarefaEditar.descricao, &tarefaEditar.prioridade, &tarefaEditar.situacao) != EOF)
+    {
+        if (id == idEdicao)
+        {
+            continue;
         }
 
         else
@@ -354,9 +406,9 @@ int main()
             printf("Digite sua opção: ");
             scanf("%d", &opcao);
             getchar();
-            if (opcao < 0 || opcao > 5)
+            if (opcao < 0 || opcao > 7)
             {
-                printf("Opção inválida. Por favor, digite um número entre 0 e 5.\n");
+                printf("Opção inválida. Por favor, digite um número entre 0 e 7.\n");
             }
         } while (opcao < 0 || opcao > 7);
 
@@ -377,6 +429,7 @@ int main()
         case 3:
             system("clear");
             printf("\nApagar Tarefas selecionado.\n");
+            apagarTarefa();
             break;
 
         case 4:
