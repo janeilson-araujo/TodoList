@@ -26,7 +26,6 @@ void adicionarTarefa()
         printf("Digite a descrição da tarefa: ");
         fgets(novaTarefa.descricao, sizeof(novaTarefa.descricao), stdin);
         novaTarefa.descricao[strcspn(novaTarefa.descricao, "\n")] = '\0';
-        // tratamento de erros para descrição da tarefa
         if (strlen(novaTarefa.descricao) == 0)
         {
             printf("Descrição inválida. Por favor, digite uma descrição para a tarefa.\n");
@@ -58,8 +57,111 @@ void adicionarTarefa()
     printf("Tarefa adicionada com sucesso!\n");
 }
 
-void editarTarefas()
+void editarTarefa()
 {
+    FILE *abrirArquivo = fopen("tarefas.txt", "r");
+    if (abrirArquivo == NULL)
+    {
+        printf("Erro ao abrir o arquivo de tarefas.\n");
+        return;
+    }
+    FILE *arquivoTemp = fopen("tarefas_temp.txt", "w");
+
+    int id = 1;
+    char situacao_temp[2];
+
+    struct task tarefaEditar;
+
+    printf("\ntarefas:\n");
+    while (fscanf(abrirArquivo, "%255[^,], %d, %d\n", tarefaEditar.descricao, &tarefaEditar.prioridade, &tarefaEditar.situacao) != EOF)
+    {
+        printf("ID: %d | Descrição: %s | Prioridade: %d | Situação: %s\n", id, tarefaEditar.descricao, tarefaEditar.prioridade, tarefaEditar.situacao ? "Concluída" : "Pendente");
+        id++;
+    }
+
+    rewind(abrirArquivo);
+    int idEdicao;
+
+    do
+    {
+        printf("Digite o ID da tarefa que deseja editar: ");
+        scanf("%d", &idEdicao);
+        getchar();
+        if (idEdicao < 1 || idEdicao >= id)
+        {
+            printf("ID inválido. Por favor, digite um ID válido.\n");
+        }
+    } while (idEdicao < 1 || idEdicao >= id);
+
+    id = 1;
+
+    while (fscanf(abrirArquivo, "%255[^,], %d, %d\n", tarefaEditar.descricao, &tarefaEditar.prioridade, &tarefaEditar.situacao) != EOF)
+    {
+        if (id == idEdicao)
+        {
+            do
+            {
+                printf("Digite a descrição da tarefa: ");
+                fgets(tarefaEditar.descricao, sizeof(tarefaEditar.descricao), stdin);
+                tarefaEditar.descricao[strcspn(tarefaEditar.descricao, "\n")] = '\0';
+
+                if (strlen(tarefaEditar.descricao) == 0)
+                {
+                    printf("Descrição inválida. Por favor, digite uma descrição para a tarefa.\n");
+                }
+                if (strlen(tarefaEditar.descricao) > 255)
+                {
+                    printf("Descrição muito longa. Por favor, digite uma descrição com no máximo 255 caracteres.\n");
+                }
+
+            } while (strlen(tarefaEditar.descricao) == 0 || strlen(tarefaEditar.descricao) > 255);
+
+            do
+            {
+                printf("Digite a prioridade da tarefa (1-5): ");
+                scanf("%d", &tarefaEditar.prioridade);
+                if (tarefaEditar.prioridade < 1 || tarefaEditar.prioridade > 5)
+                {
+                    printf("Prioridade inválida. Por favor, digite um valor entre 1 e 5.\n");
+                }
+                getchar();
+
+            } while (tarefaEditar.prioridade < 1 || tarefaEditar.prioridade > 5);
+
+            do
+            {
+                printf("Deseja marcar a tarefa como concluída? (y - SIM, n - NÂO): ");
+                fgets(situacao_temp, sizeof(situacao_temp), stdin);
+                situacao_temp[strcspn(situacao_temp, "\n")] = '\0';
+                if (strcmp(situacao_temp, "y") == 0 || strcmp(situacao_temp, "Y") == 0)
+                {
+                    tarefaEditar.situacao = 1;
+                }
+                else if (strcmp(situacao_temp, "n") == 0 || strcmp(situacao_temp, "N") == 0)
+                {
+                    tarefaEditar.situacao = 0;
+                }
+                else
+                {
+                    printf("Opção inválida. Por favor, digite 'y' para SIM ou 'n' para NÃO.\n");
+                }
+
+            } while (situacao_temp[0] != 'y' && situacao_temp[0] != 'Y' && situacao_temp[0] != 'n' && situacao_temp[0] != 'N');
+
+            fprintf(arquivoTemp, "%s, %d, %d\n", tarefaEditar.descricao, tarefaEditar.prioridade, tarefaEditar.situacao);
+        }
+
+        else
+        {
+            fprintf(arquivoTemp, "%s, %d, %d\n", tarefaEditar.descricao, tarefaEditar.prioridade, tarefaEditar.situacao);
+        }
+        id++;
+    }
+
+    fclose(abrirArquivo);
+    fclose(arquivoTemp);
+    remove("tarefas.txt");
+    rename("tarefas_temp.txt", "tarefas.txt");
 }
 
 void listarTarefas()
@@ -71,6 +173,7 @@ void listarTarefas()
         return;
     }
 
+    int id = 1;
     char descricao[256];
     int prioridade;
     int situacao;
@@ -78,7 +181,8 @@ void listarTarefas()
     printf("\nLista de tarefas:\n");
     while (fscanf(abrirArquivo, "%255[^,], %d, %d\n", descricao, &prioridade, &situacao) != EOF)
     {
-        printf("Descrição: %s | Prioridade: %d | Situação: %s\n", descricao, prioridade, situacao ? "Concluída" : "Pendente");
+        printf("ID: %d | Descrição: %s | Prioridade: %d | Situação: %s\n", id, descricao, prioridade, situacao ? "Concluída" : "Pendente");
+        id++;
     }
     fclose(abrirArquivo);
 
@@ -95,6 +199,7 @@ void listarTarefasPendentes()
         return;
     }
 
+    int id = 1;
     char descricao[256];
     int prioridade;
     int situacao;
@@ -104,8 +209,9 @@ void listarTarefasPendentes()
     {
         if (situacao == 0)
         {
-            printf("Descrição: %s | Prioridade: %d | Situação: %s\n", descricao, prioridade, situacao ? "Concluída" : "Pendente");
+            printf("ID: %d | Descrição: %s | Prioridade: %d | Situação: %s\n", id, descricao, prioridade, situacao ? "Concluída" : "Pendente");
         }
+        id++;
     }
     fclose(abrirArquivo);
 
@@ -122,6 +228,7 @@ void listarTarefasConcluidas()
         return;
     }
 
+    int id = 1;
     char descricao[256];
     int prioridade;
     int situacao;
@@ -131,8 +238,9 @@ void listarTarefasConcluidas()
     {
         if (situacao == 1)
         {
-            printf("Descrição: %s | Prioridade: %d | Situação: %s\n", descricao, prioridade, situacao ? "Concluída" : "Pendente");
+            printf("ID: %d | Descrição: %s | Prioridade: %d | Situação: %s\n", id, descricao, prioridade, situacao ? "Concluída" : "Pendente");
         }
+        id++;
     }
     fclose(abrirArquivo);
 
@@ -155,10 +263,12 @@ int main()
 
         printf("Escolha uma opção:\n");
         printf("1. Adicionar tarefa\n");
-        printf("2. Editar tarefas\n");
-        printf("3. Listar tarefas\n");
-        printf("4. Listar tarefas pendentes\n");
-        printf("5. Listar tarefas concluídas\n");
+        printf("2. Marcar tarefas como concluidas\n");
+        printf("3. Apagar Tarefas\n");
+        printf("4. Editar tarefa\n");
+        printf("5. Listar tarefas\n");
+        printf("6. Listar tarefas pendentes\n");
+        printf("7. Listar tarefas concluídas\n");
         printf("0. Sair\n");
 
         do
@@ -170,37 +280,47 @@ int main()
             {
                 printf("Opção inválida. Por favor, digite um número entre 0 e 5.\n");
             }
-        } while (opcao < 0 || opcao > 5);
+        } while (opcao < 0 || opcao > 7);
 
         switch (opcao)
         {
         case 1:
             system("clear");
-            printf("\nAdicionar tarefa selecionado.");
+            printf("\nAdicionar tarefa selecionado.\n");
             adicionarTarefa();
             break;
 
         case 2:
             system("clear");
-            printf("\nEditar tarefa selecionado.");
-            editarTarefas();
+            printf("\nMarcar tarefas como concluidas selecionado.\n");
             break;
 
         case 3:
             system("clear");
-            printf("\nListar tarefas selecionado.");
-            listarTarefas();
+            printf("\nApagar Tarefas selecionado.\n");
             break;
 
         case 4:
             system("clear");
-            printf("\nListar tarefas pendentes selecionado.");
-            listarTarefasPendentes();
+            printf("\nEditar tarefa selecionado.\n");
+            editarTarefa();
             break;
 
         case 5:
             system("clear");
-            printf("\nListar tarefas concluídas selecionado.");
+            printf("\nListar tarefas selecionado.\n");
+            listarTarefas();
+            break;
+
+        case 6:
+            system("clear");
+            printf("\nListar tarefas pendentes selecionado.\n");
+            listarTarefasPendentes();
+            break;
+
+        case 7:
+            system("clear");
+            printf("\nListar tarefas concluídas selecionado.\n");
             listarTarefasConcluidas();
             break;
 
